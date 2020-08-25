@@ -3,6 +3,7 @@ import { useParams } from "react-router-dom";
 import { gql } from "apollo-boost";
 import { useQuery } from "@apollo/react-hooks";
 import styled from "styled-components";
+import Movie from "../components/Movie";
 
 const GET_MOVIE = gql`
   query getMovie($id: Int!) {
@@ -13,7 +14,7 @@ const GET_MOVIE = gql`
       language
       rating
     }
-    suggestions {
+    suggestions(id: $id) {
       id
       medium_cover_image
     }
@@ -57,26 +58,45 @@ const Poster = styled.div`
   background-size: cover;
   background-position: center center;
 `;
+
+const Movies = styled.div`
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  grid-gap: 25px;
+  width: 80%;
+  margin: auto;
+  position: relative;
+  top: -50px;
+`;
+
 function Detail() {
   const { id } = useParams();
   const { loading, data } = useQuery(GET_MOVIE, {
     variables: { id: parseInt(id) },
   });
+  console.log(data);
   return (
-    <Container>
-      <Column>
-        <Title>{loading ? "Loading..." : data.movie.title}</Title>
-        {!loading && data.movie && (
-          <>
-            <Subtitle>
-              {data.movie.language} - {data.movie.rating}
-            </Subtitle>
-            <Description>{data.movie.description_intro}</Description>
-          </>
-        )}
-      </Column>
-      <Poster bg={data?.movie?.medium_cover_image}></Poster>
-    </Container>
+    <>
+      <Container>
+        <Column>
+          <Title>{loading ? "Loading..." : data.movie.title}</Title>
+          {!loading && data.movie && (
+            <>
+              <Subtitle>
+                {data.movie.language} - {data.movie.rating}
+              </Subtitle>
+              <Description>{data.movie.description_intro}</Description>
+            </>
+          )}
+        </Column>
+        <Poster bg={data?.movie?.medium_cover_image}></Poster>
+      </Container>
+      <Movies>
+        {data?.suggestions.map((movie) => (
+          <Movie key={movie.id} id={movie.id} bg={movie.medium_cover_image} />
+        ))}
+      </Movies>
+    </>
   );
 }
 

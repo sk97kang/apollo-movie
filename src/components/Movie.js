@@ -19,7 +19,6 @@ const Poster = styled.div`
 `;
 
 function Movie({ id, bg }) {
-  console.log(bg);
   return (
     <Container>
       <Link to={`/${id}`}>
