@@ -1,6 +1,20 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import styled from "styled-components";
+import { gql } from "apollo-boost";
+import { useMutation } from "@apollo/react-hooks";
+
+const LIKE_MOVIE = gql`
+  mutation likeMovie($id: Int!) {
+    likeMovie(id: $id) @client
+  }
+`;
+
+const UNLIKE_MOVIE = gql`
+  mutation unlikeMovie($id: Int!) {
+    unlikeMovie(id: $id) @client
+  }
+`;
 
 const Container = styled.div`
   height: 400px;
@@ -20,12 +34,20 @@ const Poster = styled.div`
 `;
 
 function Movie({ id, bg, isLiked }) {
+  const [likeMovie] = useMutation(LIKE_MOVIE, {
+    variables: { id: parseInt(id) },
+  });
+  const [unlikeMovie] = useMutation(UNLIKE_MOVIE, {
+    variables: { id: parseInt(id) },
+  });
   return (
     <Container>
       <Link to={`/${id}`}>
         <Poster bg={bg} />
       </Link>
-      <button>{isLiked ? "Unlike" : "LIked"}</button>
+      <button onClick={isLiked ? unlikeMovie : likeMovie}>
+        {isLiked ? "Unlike" : "LIked"}
+      </button>
     </Container>
   );
 }
